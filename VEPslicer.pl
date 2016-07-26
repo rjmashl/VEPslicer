@@ -3,7 +3,7 @@
 # VEP Slicer: Extract variants from Variant Effect Predictor (VEP) annotated VCFs by keyword
 #
 # Author: R. Jay Mashl <rjmashl@gmail.com>
-# 2016-06-16: v0.1: initial version
+# v0.1: initial version
 #
 # Inputs: VCF file and one or more VEP keywords
 # Output: Variant calls (chr,pos,ref,alt) with VEP values for the keywords
@@ -26,7 +26,7 @@ sub get_value {
 	    return $b[1];
 	}
     }
-    return "NULL";  # no match
+    return "";  # no match
 }
 
 sub syntax {
@@ -116,7 +116,7 @@ while(<IN>) {
     my @field = split /\t/, $_;
     my $value = get_value( $field[7], "CSQ" );
     
-    if( $value ne "NULL" ) {  # CSQ was present
+    if( length $value ) {  # CSQ was present
 	my @anno_field = split /\|/, $value, -1;
 	
 	my $print_str = join( "\t", @field[0,1,3,4] );
