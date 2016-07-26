@@ -3,6 +3,7 @@
 # VEP Slicer: Extract variants from Variant Effect Predictor (VEP) annotated VCFs by keyword
 #
 # Author: R. Jay Mashl <rjmashl@gmail.com>
+# v0.2: handle multiple consequences
 # v0.1: initial version
 #
 # Inputs: VCF file and one or more VEP keywords
@@ -115,19 +116,22 @@ while(<IN>) {
     # process calls
     my @field = split /\t/, $_;
     my $value = get_value( $field[7], "CSQ" );
-    
+
     if( length $value ) {  # CSQ was present
-	my @anno_field = split /\|/, $value, -1;
-	
-	my $print_str = join( "\t", @field[0,1,3,4] );
-	for(my $j = 0 ; $j < scalar @fixed_col ; $j++) {
-	    my $answer = $anno_field[ $fixed_col[$j] ];
-	    if( length($answer) == 0 ) {
-		$answer = "NULL";
+	my %s = ();  # make outputs unique
+	foreach my $csq (split(/,/, $value)) { # allow multiple annotations
+	    my @anno_field = split /\|/, $csq, -1;
+	    my $print_str = join( "\t", @field[0,1,3,4] );
+	    for(my $j = 0 ; $j < scalar @fixed_col ; $j++) {
+		my $answer = $anno_field[ $fixed_col[$j] ];
+		if( length($answer) == 0 ) {
+		    $answer = "NULL";
+		}
+		$print_str .= "\t".$answer;
 	    }
-	    $print_str .= "\t".$answer;
+	    $s{$print_str} = 1;
 	}
-	print $print_str, "\n";
+	foreach (keys %s) { print $_."\n"; }
     }
 }
 close( IN );
