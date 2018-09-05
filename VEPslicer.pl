@@ -55,12 +55,16 @@ sub get_vep_keywords {
     open(IN , "< $vcf")  ||  die "\nError: Cannot find file $vcf\n\n\n";
     while(<IN>) {
 	chomp;
+	if(/^#/) {
         if(/^##INFO=<ID=CSQ/) {
             my @info_id = split /Format:\ /, $_;
             $info_id[1] = substr( $info_id[1], 0, -2 );  # remove end xml chars
             my @tmp     = split /\|/, $info_id[1];
 	    print "VEP Keywords present:\n";
 	    print join(", ", @tmp);
+	}
+	} else {
+	    last;
 	}
     }
     close(IN);
